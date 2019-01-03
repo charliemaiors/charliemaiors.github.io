@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-This is charliemaiors' blog.
+This is carlo' blog.
 
 The source for this blog is at
 [github.com/charliemaiors/charliemaiors.github.io](https://github.com/charliemaiors/charliemaiors.github.io).
