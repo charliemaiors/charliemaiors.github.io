@@ -22,8 +22,10 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://www.carlomaiorano.me" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: carlomaiorano87
 github_username: charliemaiors
+gitlab_username: charliemaiors
 instagram_username: charliemaiors
 telegram_username: charliemaiors
+docker_username: cmaiorano
 google_analytics: UA-132864306-1
 disqus:
   shortname: carloblog

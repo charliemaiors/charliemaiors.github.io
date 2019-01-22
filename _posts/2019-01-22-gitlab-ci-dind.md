@@ -10,7 +10,7 @@ categories: gitlab
 Nowadays 
 
 ```yaml
-image: docker:stable
+image: golang:1.11 # For instance
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -19,12 +19,13 @@ variables:
 
 build:
   stage: build
+  image: docker:stable
   before_script:
-  - docker info
+  - docker info # not necessary
   services:
   - docker:dind
   script:
-  - docker login $CI_REGISTRY	 -u $REGISTRY_USER -p $REGISTRY_PASSWORD
+  - docker login $CI_REGISTRY -u $REGISTRY_USER -p $REGISTRY_PASSWORD
   - docker build -t $CI_REGISTRY/$CI_PROJECT_PATH .
   - docker push $CI_REGISTRY/$CI_PROJECT_PATH
 ```
