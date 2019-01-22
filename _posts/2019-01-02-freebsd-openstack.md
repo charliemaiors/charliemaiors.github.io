@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "FreeBSD Image for Openstack"
+comments: true
 categories: freebsd
 ---
 

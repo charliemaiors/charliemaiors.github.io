@@ -1,7 +1,8 @@
 ---
 layout: post
 title:  "Openstack RC for fish shell"
-categories: freebsd
+comments: true
+categories: openstack
 ---
 
 Openstack allows the user to interact its APIs using ```openstack-cli```, which requires a set of environment variables or [yaml files](https://docs.openstack.org/python-openstackclient/pike/configuration/index.html). With yaml you can configure more than one Cluster (also public ones), with environment variables is possible to administrate only one cluster at time.
