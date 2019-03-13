@@ -127,3 +127,11 @@ These tasks creates the necessary directory and configuration file if they don't
 ```
 
 The last task will copy the retrieved configuration to the rclone configuration file. The ```onepassword_facts``` module will produce a dictionary with using the search term as key and the tuple \<field:value\> as value, so to retrieve the value of the document you have to use ```"{{ item.value.document }}"``` as value for the ```content``` field of the copy module. Is obvious that the copy module will produce an output with the value of the dictionary so the ```no_log``` is mandatory.
+
+## Conclusion
+
+This playbook can be easly declined to every service which stores configuration in a predefined place, but must be take into account the "overhead" of this procedure.
+
+### Note
+
+The playbook is available on Github: https://github.com/charliemaiors/ansible-onepassword.
