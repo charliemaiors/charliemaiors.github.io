@@ -15,7 +15,7 @@ sharing:
 I was also interested in using the CLI on OS with command line only (like my freebsd box) or linux in order to have all my passwords and also have a secure way to retrieve my configuration with sensitive data. For instance I use a lot [Rclone](https://rclone.org/) as all-cloud-sync client. Rclone is a rsync client (CLI only) for cloud storages, it allows to sync, copy files between cloud storage and local machine or cloud-to-cloud; there is also a project called rclone-browser for users which want always a GUI (personally I'm fine with the CLI).
 Rclone relies on a configuration file located tipically in the user home directory, in this file the application saves (encrypted) all the configuration for each cloud storage (called remote); this file is perfectly portable between OSes and versions so it can be backupped in a safe place, for instance in 1password as document.
 
-## Automation 
+## Automation
 
 Personally every new box which I deploy for development purposes I use rclone to sync all produced data to object storage like swift or s3 or personal cloud provider, I've also developed an [ansible role](https://galaxy.ansible.com/charliemaiors/rclone-ansible) to automatic deploy rclone on new boxes (even macos and windows) and manually copy my configuration file to new installation.
 
@@ -69,6 +69,7 @@ Below you can find the playbook used to automatically install and configure rclo
       with_dict: "{{ onepassword }}"
       no_log: true # Otherwise the configuration will be printed to stdout
 ```
+
 Now we will examine the main parts of the playbook:
 
 ```yaml
@@ -96,6 +97,7 @@ Using ```onepassword_facts``` without any login advice assumes that you have alr
         executable: /bin/bash
       register: config_file
 ```
+
 This snippet is an "hack" in order to retrieve the configuration file location, the grep part of the command must be substituted with ```Select-String -NotMatch "Configuration file*"``` on Windows and the task must be a ```win_shell```.
 
 ```yaml
