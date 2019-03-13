@@ -4,9 +4,9 @@ title:  "Continuous integration for FreeBSD Ansbile Roles with molecule"
 comments: true
 categories: freebsd
 sharing:
-  twitter: "Continuous integration for FreeBSD Ansbile Roles with molecule"
-  facebook: "Continuous integration for FreeBSD Ansbile Roles with molecule"
-  linkedin: "Using 1password as backup for application configurations: Rclone"
+  twitter: Continuous integration for FreeBSD Ansbile Roles with molecule
+  facebook: Continuous integration for FreeBSD Ansbile Roles with molecule
+  linkedin: Continuous integration for FreeBSD Ansbile Roles with molecule
 ---
 ---
 

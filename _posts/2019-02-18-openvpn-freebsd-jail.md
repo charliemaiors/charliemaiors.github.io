@@ -4,9 +4,9 @@ title:  "OpenVPN in a FreeBSD Jail"
 comments: true
 categories: freebsd
 sharing:
-  twitter: "OpenVPN in a FreeBSD Jail"
-  facebook: "OpenVPN in a FreeBSD Jail"
-  linkedin: "OpenVPN in a FreeBSD Jail"
+  twitter: OpenVPN in a FreeBSD Jail
+  facebook: OpenVPN in a FreeBSD Jail
+  linkedin: OpenVPN in a FreeBSD Jail
 ---
 
 # FreeBSD and OpenVPN

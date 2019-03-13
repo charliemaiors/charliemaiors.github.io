@@ -4,9 +4,9 @@ title:  "FreeBSD Image for Openstack"
 comments: true
 categories: freebsd
 sharing:
-  twitter: "FreeBSD Image for Openstack"
-  facebook: "FreeBSD Image for Openstack"
-  linkedin: "FreeBSD Image for Openstack"
+  twitter: FreeBSD Image for Openstack
+  facebook: FreeBSD Image for Openstack
+  linkedin: FreeBSD Image for Openstack
 ---
 
 # Introduction
