@@ -3,6 +3,10 @@ layout: post
 title:  "Using 1password as backup for application configurations: Rclone"
 comments: true
 categories: ansible
+sharing:
+  twitter: "Using 1password as backup for application configurations: Rclone"
+  facebook: "Using 1password as backup for application configurations: Rclone"
+  linkedin: "Using 1password as backup for application configurations: Rclone"
 ---
 
 # Introduction
