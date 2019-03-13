@@ -134,4 +134,4 @@ This playbook can be easly declined to every service which stores configuration 
 
 ### Note
 
-The playbook is available on Github: https://github.com/charliemaiors/ansible-onepassword.
+The playbook is available on Github: [https://github.com/charliemaiors/ansible-onepassword](https://github.com/charliemaiors/ansible-onepassword).
