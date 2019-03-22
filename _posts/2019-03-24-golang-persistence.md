@@ -8,3 +8,4 @@ sharing:
   facebook: A personal point of view on how to organize persistence in Go
   linkedin: A personal point of view on how to organize persistence in Go
 ---
+
