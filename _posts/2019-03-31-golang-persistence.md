@@ -68,6 +68,15 @@ type postgresBookPersistor struct {
   // store private variables if needed
 }
 
+func (persistor *postgresBookPersistor) awaitAndReturn(resChan chan []*Book, errChan chan error) ([]*Book, error){
+  select{
+    case books :=<-resChan:
+      return books, nil
+    case err :=<- errChan:
+      return nil, err
+  }
+}
+
 func (persistor *postgresBookPersistor) AllBooks() ([]*Book, error){
   booksChan := make(chan []*Books)
   errChan := make(chan error)
@@ -94,6 +103,36 @@ func (persistor *postgresBookPersistor) AllBooks() ([]*Book, error){
     }
     return bks, nil
   }
+  return persistor.awaitAndReturn(booksChan,errChan)
 }
-
 ```
+
+We have also to implement a method for instantiate the "postgres part" of the persistence module:
+
+```go
+func initPostgres() BookPersistor{
+  db, err := sql.Open("postgres", dataSourceName) //NOTE the datasource could be obtained using viper, env variables or whatever
+  if err != nil {
+    panic(err)
+  }
+  go startHandler(db)
+  return postgresBookPersistor{}
+}
+```
+
+Then to instantiate the persistence module you can have a ```StartPersistence(dbtype string)``` method which instantiate the interfaces for the correct db.
+
+```go
+func StartPersistence(driver string) (books BooksPersistor, err error){
+  switch driver {
+  case "postgres":
+    books = initPostgres()
+  default:
+    err = errors.New("Invalid driver")
+  }
+  return
+}
+```
+
+This "model" enable a more "organized" way to define your persistence module, enabling also a seamless multi-db support. 
+This is a initial proposal to an extended model for persistence in go. Please leave a comment, I'm curious about your opinion. 
