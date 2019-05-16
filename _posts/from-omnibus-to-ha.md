@@ -15,4 +15,6 @@ I had a spare bare metal machine, see [figure](optiplex) where I can make all th
 ![optiplex](/assets/img/optiplex.jpg "The spare machine")
 
 So I've decided to install the [Omnibus](https://docs.gitlab.com/omnibus/) package on that machine (which was running [Ubuntu](https://about.gitlab.com/install/#ubuntu) at the time), assigned a public IP and registered to a custom domain that we own (also for experiments).
-After some days I've started to work (and manage) a project which involves containers, 
+My collegues started also to use it, migrating projects from the old SVN to the new server.
+
+I've started to appreciate also other "side" functionalities, like [Docker](https://www.docker.com/) Registry 
