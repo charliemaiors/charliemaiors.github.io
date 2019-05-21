@@ -17,4 +17,26 @@ I had a spare bare metal machine, see [figure](optiplex) where I can make all th
 So I've decided to install the [Omnibus](https://docs.gitlab.com/omnibus/) package on that machine (which was running [Ubuntu](https://about.gitlab.com/install/#ubuntu) at the time), assigned a public IP and registered to a custom domain that we own (also for experiments).
 My collegues started also to use it, migrating projects from the old SVN to the new server.
 
-I've started to appreciate also other "side" functionalities, like [Docker](https://www.docker.com/) Registry 
+I've started to appreciate also other "side" functionalities, like [Docker](https://www.docker.com/) Registry and the pipeline engine for [CI](https://www.wikiwand.com/en/Continuous_integration).
+
+After a while also my collegues started using the Gitlab instance, so we decided to migrate on our internal IaaS (Openstack) in order to have higher reliability compared to the [Optiplex](optiplex).
+The migration was pretty much straight forward, I've just re-installed the ```gitlab-omnibus``` package, then restored the latest backup, modified the ```gitlab-secrets.json``` file and everything was up and running (IMHO the migration was very easy).
+I've also appreciated the backup mechanism, which relies on a [Chef Cookbook](https://docs.chef.io/cookbooks.html), for its maximum configurability; in fact we decided to move our backups on the Openstack Object Storage (Swift), the backup mechanism relies on [Fog library](https://github.com/fog/fog-openstack) and the configuration was not so easy. For completeness I will report our configuration (with redacted sensitive values):
+
+```ruby
+gitlab_rails['backup_keep_time'] = 604800
+
+gitlab_rails['backup_upload_connection'] = {
+   'provider' => 'Openstack',
+   'openstack_auth_url' => 'http://keystonev3url:5000/v3',
+   'openstack_username' => 'username',
+   'openstack_api_key' =>  'password',
+   'openstack_project_name' => 'tenant',
+   'openstack_domain_id' =>    'target-domain'
+}
+gitlab_rails['backup_upload_remote_directory'] = 'swift-container-name'
+gitlab_rails['backup_multipart_chunk_size'] = 1048576000
+```
+
+After this configuration we want to relies as-much-as-possible to the Object Storage, in order to maintain the instance with enough free space.
+So we configured also the [artifacts storage](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html), which also save a copy of the pipeline job logs on it, and the [lfs](https://git-lfs.github.com/). The configuration is pretty much the same, except for 
