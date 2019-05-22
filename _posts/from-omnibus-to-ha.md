@@ -38,5 +38,45 @@ gitlab_rails['backup_upload_remote_directory'] = 'swift-container-name'
 gitlab_rails['backup_multipart_chunk_size'] = 1048576000
 ```
 
-After this configuration we want to relies as-much-as-possible to the Object Storage, in order to maintain the instance with enough free space.
-So we configured also the [artifacts storage](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html), which also save a copy of the pipeline job logs on it, and the [lfs](https://git-lfs.github.com/). The configuration is pretty much the same, except for 
+After some tests with this configuration we choose to rely as-much-as-possible on the Object Storage, in order to maintain the instance with enough free space.
+So we configured also the [artifacts storage](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html), which also save a copy of the pipeline job logs on it, and the [lfs](https://git-lfs.github.com/). The configuration is pretty much the same, except for some parameters like the Swift temporary URL key.
+
+The artifacts snippet is:
+
+```ruby
+gitlab_rails['artifacts_enabled'] = true
+# gitlab_rails['artifacts_path'] = "/mnt/storage/artifacts"
+gitlab_rails['artifacts_object_store_enabled'] = true # EE only
+gitlab_rails['artifacts_object_store_remote_directory'] = "artifacts-container"
+gitlab_rails['artifacts_object_store_connection'] = {
+   'provider' => 'OpenStack',
+   'openstack_auth_url' => 'http://keystonev3url:5000/v3',
+   'openstack_username' => 'user',
+   'openstack_api_key' =>  'password',
+   'openstack_project_name' => 'project',
+   'openstack_domain_id' =>    'domain',
+   'openstack_temp_url_key' => 'swift-temp-url-key'
+}
+```
+
+Instead the lfs configuration snippet:
+
+```ruby
+### Git LFS
+gitlab_rails['lfs_enabled'] = true
+# gitlab_rails['lfs_storage_path'] = "/mnt/storage/lfs-objects"
+gitlab_rails['lfs_object_store_enabled'] = true # EE only
+gitlab_rails['lfs_object_store_background_upload'] = true # Our object storage is not so fast so we choose to do a background upload instead of have timeouts
+gitlab_rails['lfs_object_store_remote_directory'] = "lfs-container"
+gitlab_rails['lfs_object_store_connection'] = {
+   'provider' => 'OpenStack',
+   'openstack_auth_url' => 'http://keystonev3url:5000/v3',
+   'openstack_username' => 'username',
+   'openstack_api_key' => 'password',
+   'openstack_project_name' => 'project',
+   'openstack_domain_id' => 'domain',
+   'openstack_temp_url_key' => 'swift-temp-url-key'
+}
+```
+
+The Openstack cluster hosts (among all the projects) also other horizontal services which uses databases, key-value store and many other architectural components which can be shared between services. In particular we had (btw they are still running) some services which relies on PostgreSQL as database, so we decided to "clusterize" all the Postgres instances in order to have high availability and streamed data replication.
