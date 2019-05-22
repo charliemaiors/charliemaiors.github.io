@@ -79,4 +79,7 @@ gitlab_rails['lfs_object_store_connection'] = {
 }
 ```
 
-The Openstack cluster hosts (among all the projects) also other horizontal services which uses databases, key-value store and many other architectural components which can be shared between services. In particular we had (btw they are still running) some services which relies on PostgreSQL as database, so we decided to "clusterize" all the Postgres instances in order to have high availability and streamed data replication.
+The Openstack cluster hosts (among all the projects) also other horizontal services which uses databases, key-value store and many other architectural components which can be shared between services. 
+In particular we had (btw they are still running) some services which relies on PostgreSQL as database, so we decided to "clusterize" all the Postgres instances in order to have high availability and streamed data replication; from a functional point of view I've deployed a set of PostgreSQL instances and migrated all other databases to the cluster in order to have the same version on the same OS.
+I've used ansible (this [role](https://github.com/geerlingguy/ansible-role-postgresql), I've used a lot of roles written by [geerlingguy](https://www.jeffgeerling.com/) because works as expected and covers all the aspect of the target service/application), to deploy Postgres and then performed some other manual tasks to create the cluster.
+Once deployed the cluster
