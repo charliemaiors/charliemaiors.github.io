@@ -39,7 +39,7 @@ gitlab_rails['backup_multipart_chunk_size'] = 1048576000
 ```
 
 After some tests with this configuration we choose to rely as-much-as-possible on the Object Storage, in order to maintain the instance with enough free space.
-So we configured also the [artifacts storage](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html), which also save a copy of the pipeline job logs on it, and the [lfs](https://git-lfs.github.com/). The configuration is pretty much the same, except for some parameters like the Swift temporary URL key.
+So we configured also the [artifacts storage](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html), which also save a copy of the pipeline job logs on it (but atm has some [problem](https://gitlab.com/gitlab-org/gitlab-ce/issues/57733)), and the [lfs](https://git-lfs.github.com/). The configuration is pretty much the same, except for some parameters like the Swift temporary URL key.
 
 The artifacts snippet is:
 
@@ -82,4 +82,21 @@ gitlab_rails['lfs_object_store_connection'] = {
 The Openstack cluster hosts (among all the projects) also other horizontal services which uses databases, key-value store and many other architectural components which can be shared between services. 
 In particular we had (btw they are still running) some services which relies on PostgreSQL as database, so we decided to "clusterize" all the Postgres instances in order to have high availability and streamed data replication; from a functional point of view I've deployed a set of PostgreSQL instances and migrated all other databases to the cluster in order to have the same version on the same OS.
 I've used ansible (this [role](https://github.com/geerlingguy/ansible-role-postgresql), I've used a lot of roles written by [geerlingguy](https://www.jeffgeerling.com/) because works as expected and covers all the aspect of the target service/application), to deploy Postgres and then performed some other manual tasks to create the cluster.
-Once deployed the cluster
+Once deployed the cluster I've started the migration of Gitlab data to the external cluster (Note: the cluster is without pgbouncer), I've done these steps to move from the internal Postgres to the external one (assuming the external cluster up and running):
+
+1. Dump the internal Database: ```sudo -u gitlab-psql /opt/gitlab/embedded/bin/pg_dumpall --username=gitlab-psql --host=/var/opt/gitlab/postgresql > /var/lib/pgsql/database.sql```
+2. Import the dump into the cluster ```sudo -u postgres psql -f /var/lib/pgsql/database.sql``` (this is an example feel free to import it as you prefer)
+3. Create the ```gitlab``` and set its password: ```sudo -u postgres psql -c "ALTER USER gitlab ENCRYPTED PASSWORD 'password' VALID UNTIL 'infinity';"```
+4. Then modify the configuration file setting the following values:
+```ruby
+postgresql['enable'] = false # Disable the embedded PostgreSQL
+gitlab_rails['db_adapter'] = "postgresql"
+gitlab_rails['db_encoding'] = "unicode"
+gitlab_rails['db_database'] = "gitlabhq_production" # Is the default created in the embedded instance
+gitlab_rails['db_username'] = "gitlab"
+gitlab_rails['db_password'] = "password"
+gitlab_rails['db_host'] = "<cluster-master-ip-address>"
+gitlab_rails['db_port'] = 5432 # Tipically the 5432
+```
+5. Then reconfigure and restart (```sudo gitlab-ctl reconfigure && sudo gitlab-ctl restart```)
+
