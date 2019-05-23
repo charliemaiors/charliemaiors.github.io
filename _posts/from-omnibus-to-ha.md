@@ -102,7 +102,7 @@ gitlab_rails['db_port'] = 5432 # Tipically the 5432
 
 The migration to the external database was smooth, but a major update (11.9) caused some a little outage; btw we've opened an [issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/59455) and the efficient Gitlab team supported us and in few minutes Gitlab was up and running again.
 
-
+Then we decided to provide to other services 
 
 ```conf
 location /profile/personal_access_tokens {
