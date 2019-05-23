@@ -100,14 +100,20 @@ gitlab_rails['db_port'] = 5432 # Tipically the 5432
 ```
 5. Then reconfigure and restart (```sudo gitlab-ctl reconfigure && sudo gitlab-ctl restart```)
 
- location /profile/personal_access_tokens {
-                gzip off;
-                proxy_set_header Host $http_host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-                proxy_set_header X-Forwarded-Protocol $scheme;
-                proxy_set_header X-Url-Scheme $scheme;
-                proxy_set_header X-Frame-Options     SAMEORIGIN;
-                proxy_pass http://10.0.0.33;
-        }
+The migration to the external database was smooth, but a major update (11.9) caused some a little outage; btw we've opened an [issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/59455) and the efficient Gitlab team supported us and in few minutes Gitlab was up and running again.
+
+
+
+```conf
+location /profile/personal_access_tokens {
+   gzip off;
+   proxy_set_header Host $http_host;
+   proxy_set_header X-Real-IP $remote_addr;
+   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+   proxy_set_header X-Forwarded-Proto $scheme;
+   proxy_set_header X-Forwarded-Protocol $scheme;
+   proxy_set_header X-Url-Scheme $scheme;
+   proxy_set_header X-Frame-Options     SAMEORIGIN;
+   proxy_pass http://<gitlab-1>;
+}
+```
