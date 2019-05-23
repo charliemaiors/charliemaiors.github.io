@@ -100,3 +100,14 @@ gitlab_rails['db_port'] = 5432 # Tipically the 5432
 ```
 5. Then reconfigure and restart (```sudo gitlab-ctl reconfigure && sudo gitlab-ctl restart```)
 
+ location /profile/personal_access_tokens {
+                gzip off;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Protocol $scheme;
+                proxy_set_header X-Url-Scheme $scheme;
+                proxy_set_header X-Frame-Options     SAMEORIGIN;
+                proxy_pass http://10.0.0.33;
+        }
