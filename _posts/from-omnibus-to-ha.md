@@ -102,13 +102,25 @@ gitlab_rails['db_port'] = 5432 # Tipically the 5432
 
 The migration to the external database was smooth, but a major update (11.9) caused some a little outage; btw we've opened an [issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/59455) and the efficient Gitlab team supported us and in few minutes Gitlab was up and running again.
 
-Then we decided to move our Gitlab deployment architecture from the AIO with Omnibus to the High Availability with the [horizontal model](https://docs.gitlab.com/ee/administration/high_availability/README.html#horizontal) starting with the deployment of a Redis (plus Sentinel) cluster.
+Then we decided to move our Gitlab deployment architecture from the AIO with Omnibus to the High Availability with the [horizontal model](https://docs.gitlab.com/ee/administration/high_availability/README.html#horizontal) starting with the deployment of a Redis (plus Sentinel, in particular the number of Sentinels must be odd otherwise they will not reach consensus) cluster.
 
 We deployed the Redis cluster using ansible, in particular using the role provided by [David Wittman](https://github.com/DavidWittman/ansible-redis); the we configured the only omnibus installation to interact with the Redis Sentinels and the master of the cluster. In particular:
 
 ```ruby
-
+gitlab_rails['redis_password'] = '<redis-password>'
+gitlab_rails['redis_sentinels'] = [
+  {'host' => '<host-1>', 'port' => 26379},
+  {'host' => '<host-2>', 'port' => 26379},
+  {'host' => '<host-3>', 'port' => 26379},
+]
+redis['enable'] = false
+redis['master_name'] = '<redis-master-name>'
 ```
+Reading the documentation we found that each instance of the application server must have a NFS share where they can read and write files which becames from git operations (push, pull etc etc), our Openstack Cluster hadn't the possibility to have a [multi-attach volume](https://docs.openstack.org/cinder/latest/admin/blockstorage-volume-multiattach.html) so we decided to deploy a machine with only the [Gitaly](https://docs.gitlab.com/ee/administration/gitaly/) service on it. The migration from the local storage to the Gitaly machine was pretty straightforward, we followed these steps:
+
+1. Deploy the machine with enough ram and an high number of vcpu to handle all the requests (for the moment), and a sufficiently big Cinder volume attached
+2. Install Gitlab Omnibus on it, see [here](https://about.gitlab.com/install/)
+
 
 ```ini
 location /profile/personal_access_tokens {
