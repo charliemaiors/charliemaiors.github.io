@@ -102,9 +102,15 @@ gitlab_rails['db_port'] = 5432 # Tipically the 5432
 
 The migration to the external database was smooth, but a major update (11.9) caused some a little outage; btw we've opened an [issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/59455) and the efficient Gitlab team supported us and in few minutes Gitlab was up and running again.
 
-Then we decided to provide to other services 
+Then we decided to move our Gitlab deployment architecture from the AIO with Omnibus to the High Availability with the [horizontal model](https://docs.gitlab.com/ee/administration/high_availability/README.html#horizontal) starting with the deployment of a Redis (plus Sentinel) cluster.
 
-```conf
+We deployed the Redis cluster using ansible, in particular using the role provided by [David Wittman](https://github.com/DavidWittman/ansible-redis); the we configured the only omnibus installation to interact with the Redis Sentinels and the master of the cluster. In particular:
+
+```ruby
+
+```
+
+```ini
 location /profile/personal_access_tokens {
    gzip off;
    proxy_set_header Host $http_host;
@@ -114,6 +120,6 @@ location /profile/personal_access_tokens {
    proxy_set_header X-Forwarded-Protocol $scheme;
    proxy_set_header X-Url-Scheme $scheme;
    proxy_set_header X-Frame-Options     SAMEORIGIN;
-   proxy_pass http://<gitlab-1>;
+   proxy_pass http://<gitlab-docker-registry-instance>;
 }
 ```
