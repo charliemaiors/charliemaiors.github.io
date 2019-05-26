@@ -15,6 +15,21 @@ I had a spare bare metal machine, see [figure](optiplex) where I can make all th
 ![optiplex](/assets/img/optiplex.jpg "The spare machine")
 
 So I've decided to install the [Omnibus](https://docs.gitlab.com/omnibus/) package on that machine (which was running [Ubuntu](https://about.gitlab.com/install/#ubuntu) at the time), assigned a public IP and registered to a custom domain that we own (also for experiments).
+The initial configuration (without any extra services) take into account just the external URL, and spare configuration for HTTPS and email:
+
+```ruby
+external_url 'https://<your-desidered-gitlab-domain>'
+gitlab_rails['gitlab_email_enabled'] = true
+gitlab_rails['gitlab_email_from'] = '<your-email-address>'
+gitlab_rails['gitlab_email_display_name'] = 'Gitlab'
+gitlab_rails['gitlab_email_reply_to'] = '<your-email-address>'
+nginx['enable'] = true
+nginx['redirect_http_to_https'] = true
+nginx['listen_https'] = true
+nginx['ssl_certificate'] = "<your-cert>"
+nginx['ssl_certificate_key'] = "<your-cert-key>"
+```
+
 My collegues started also to use it, migrating projects from the old SVN to the new server.
 
 I've started to appreciate also other "side" functionalities, like [Docker](https://www.docker.com/) Registry and the pipeline engine for [CI](https://www.wikiwand.com/en/Continuous_integration).
@@ -30,7 +45,6 @@ registry_nginx['listen_port'] = 5001
 registry_nginx['listen_https'] = true
 registry_nginx['ssl_certificate'] = "<your-cert>" # Obtained with letsencrypt
 registry_nginx['ssl_certificate_key'] = "<your-cert-key>" # Obtained with letsencrypt
-
 ```
 
 After a while also my collegues started using the Gitlab instance, so we decided to migrate on our internal IaaS (Openstack) in order to have higher reliability compared to the [Optiplex](optiplex).
@@ -116,7 +130,11 @@ gitlab_rails['db_port'] = 5432 # Tipically the 5432
 
 The migration to the external database was smooth, but a major update (11.9) caused some a little outage; btw we've opened an [issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/59455) and the efficient Gitlab team supported us and in few minutes Gitlab was up and running again.
 
-Then we decided to move our Gitlab deployment architecture from the AIO with Omnibus to the High Availability with the [horizontal model](https://docs.gitlab.com/ee/administration/high_availability/README.html#horizontal) starting with the deployment of a Redis (plus Sentinel, in particular the number of Sentinels must be odd otherwise they will not reach consensus) cluster.
+Then we decided to move our Gitlab deployment architecture from the AIO with Omnibus to the High Availability with the [horizontal model](https://docs.gitlab.com/ee/administration/high_availability/README.html#horizontal), like the one in [figure](horizontal)
+
+![horizontal](/assets/img/horizontal.png "The Horizontal Architecture, credits to Gitlab HA documentation")
+
+To achieve this I've started with the deployment of a Redis (plus Sentinel, in particular the number of Sentinels must be odd otherwise they will not reach consensus) cluster.
 
 We deployed the Redis cluster using ansible, in particular using the role provided by [David Wittman](https://github.com/DavidWittman/ansible-redis); the we configured the only omnibus installation to interact with the Redis Sentinels and the master of the cluster. In particular:
 
@@ -134,8 +152,54 @@ Reading the documentation we found that each instance of the application server 
 
 1. Deploy the machine with enough ram and an high number of vcpu to handle all the requests (for the moment), and a sufficiently big Cinder volume attached
 2. Install Gitlab Omnibus on it, see [here](https://about.gitlab.com/install/)
+3. Prepare the volume and add it to the fstab (like in this [post](https://medium.com/@sh.tsang/partitioning-formatting-and-mounting-a-hard-drive-in-linux-ubuntu-18-04-324b7634d1e0))
+4. Configure the instance with ONLY these values:
 
+```ruby
+gitlab_rails['internal_api_url'] = 'https://<your-gitlab-external-url>'
+gitlab_rails['auto_migrate'] = false
+gitlab_rails['rake_cache_clear'] = false
+gitlab_workhorse['enable'] = false
+unicorn['enable'] = false
+sidekiq['enable'] = false
+postgresql['enable'] = false
+redis['enable'] = false
+nginx['enable'] = false
+prometheus['enable'] = false
+alertmanager['enable'] = false
+node_exporter['enable'] = false
+redis_exporter['enable'] = false
+pgbouncer_exporter['enable'] = false
+gitlab_monitor['enable'] = false
+gitaly['enable'] = true
+gitaly['listen_addr'] = "0.0.0.0:8075" # This is the usual configuration for tcp WITHOUT tls (in our infrastructure gitaly is in a "trust zone")
+gitaly['auth_token'] = '<your-supersecret-token>'
+gitaly['storage'] = [
+   {
+     'name' => 'default',
+     'path' => '<your-path>'
+   } # more than one storage repo could be defined
+]
+```
+5. Reconfigure and restart the gitlay instance: ```# gitlab-ctl reconfigure && gitlab-ctl restart```
+6. Rsync the omnibus repository folder to the gitaly folder and set the proper permissions: ```rsync -qaHAXS -e ssh /var/opt/gitlab/git-data/ user@gitaly-server:/<your-path>```
+7. Modify the ominibus installation configuration in order to use the gitaly server:
+```ruby
+gitlab_rails['gitaly_token'] = '<your-supersecret-token>'
+git_data_dirs({
+   "default" => {
+     "path" => "<your-path>",
+     "gitaly_address" => "tcp://<gitaly-address>:8075"
+   }
+})
+```
+8. Reconfigure and restart the omnibus installation: ```# gitlab-ctl reconfigure && gitlab-ctl restart```
 
+After Gitaly we deployed all the side components to reach the horizontal scalability, the missing components are: the reverse proxy/load balancer, and at least another gitlab instance.
+
+I've made it deploying another gitlab instance, using near the same configuration, and together modified the configuration of a "Gateway" that we use for each service, which is a nginx with multiple hosts configured, one for each service.
+
+The second Gitlab instance
 ```ini
 location /profile/personal_access_tokens {
    gzip off;
