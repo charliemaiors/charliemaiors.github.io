@@ -18,6 +18,20 @@ So I've decided to install the [Omnibus](https://docs.gitlab.com/omnibus/) packa
 My collegues started also to use it, migrating projects from the old SVN to the new server.
 
 I've started to appreciate also other "side" functionalities, like [Docker](https://www.docker.com/) Registry and the pipeline engine for [CI](https://www.wikiwand.com/en/Continuous_integration).
+The configuration of the Docker Registry was pretty straighforward:
+
+```ruby
+registry_external_url 'https://<your-registry-external-url>' # This could be the same of the gitlab external url (with different port) or anoter subdomain (or event a different domain) according to your configuration on the DNS
+gitlab_rails['registry_enabled'] = true
+registry['enable'] = true
+registry_nginx['enable'] = true
+
+registry_nginx['listen_port'] = 5001
+registry_nginx['listen_https'] = true
+registry_nginx['ssl_certificate'] = "<your-cert>" # Obtained with letsencrypt
+registry_nginx['ssl_certificate_key'] = "<your-cert-key>" # Obtained with letsencrypt
+
+```
 
 After a while also my collegues started using the Gitlab instance, so we decided to migrate on our internal IaaS (Openstack) in order to have higher reliability compared to the [Optiplex](optiplex).
 The migration was pretty much straight forward, I've just re-installed the ```gitlab-omnibus``` package, then restored the latest backup, modified the ```gitlab-secrets.json``` file and everything was up and running (IMHO the migration was very easy).
