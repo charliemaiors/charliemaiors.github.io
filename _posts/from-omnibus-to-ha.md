@@ -195,11 +195,28 @@ git_data_dirs({
 ```
 8. Reconfigure and restart the omnibus installation: ```# gitlab-ctl reconfigure && gitlab-ctl restart```
 
-After Gitaly we deployed all the side components to reach the horizontal scalability, the missing components are: the reverse proxy/load balancer, and at least another gitlab instance.
+After Gitaly we deployed yall the side components to reach the horizontal scalability, the missing components are: the reverse proxy/load balancer, and at least another gitlab instance.
 
 I've made it deploying another gitlab instance, using near the same configuration, and together modified the configuration of a "Gateway" that we use for each service, which is a nginx with multiple hosts configured, one for each service.
 
-The second Gitlab instance
+The second Gitlab instance was configured taking as reference the HA [documentation](https://docs.gitlab.com/ee/administration/high_availability/gitlab.html), but instead of NFS we rely on Gitaly so the storage configuration part was replicated using the one from Gitaly (see above).
+The only exception was the docker registry, this feature rely completely on NFS because the registry needs a storage folder and our Cinder deployment does not supports the multi-attach property; so we decided to not have a complete "mirror" in functionalities between the two application servers exploiting the custom domain for the registry on the load balancer.
+The configuration of the second was the same of the first one except for the docker registry configuration and these parameters:
+
+```ruby
+ gitlab_shell['secret_token'] = '<your-secret-token>'
+ gitlab_rails['otp_key_base'] = '<your-otp-key-base>'
+ gitlab_rails['secret_key_base'] = '<your-secret-key-base>'
+ gitlab_rails['db_key_base'] = '<your-db-key-base>'
+```
+
+And also as explained in the [guide](https://docs.gitlab.com/ee/administration/high_availability/gitlab.html), we configured the instance to avoid the database migration on new version:
+```shell
+# touch /etc/gitlab/skip-autoreconfigure
+```
+
+
+
 ```ini
 location /profile/personal_access_tokens {
    gzip off;
