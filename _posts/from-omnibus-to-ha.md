@@ -236,6 +236,21 @@ nginx['proxy_set_headers'] = {
   "Connection" => "$connection_upgrade"
 }
 ```
+On the instance with the Docker registry we have to modify the values relatives to the nginx instance which handle it. In particular we had to remove the https and change the listening port.
+
+```ini
+registry_nginx['enable'] = true
+
+registry_nginx['listen_port'] = 5001
+registry_nginx['listen_https'] = false
+registry_nginx['proxy_set_headers'] = {
+  "Host" => "$http_host",
+  "X-Real-IP" => "$remote_addr",
+  "X-Forwarded-For" => "$proxy_add_x_forwarded_for",
+  "X-Forwarded-Proto" => "https",
+  "X-Forwarded-Ssl" => "on"
+}
+```
 
 Then we moved to the load balancer to properly configure the vhosts of the registry and gitlab, and also the ssh access to gitlab. The load balancer is an instance of nginx configured to act as reverse-proxy/load-balancer for some services. I will avoid the base configuration and report only the relevant files for each service.
 
@@ -302,10 +317,44 @@ stream {
 		server <gitlab-instance-2>:22;
 	}
 
-	server {
+	server { # Here is simple TCP you can't have custom headers which could be parsed for retrieve the destination host
 		listen 22 reuseport;
 		proxy_pass gitlab;
 	}
 }
 ```
-Finally 
+Finally we defined the vhost for the Docker registry (because we choose a custom domain for it), which is a simple reverse proxy configuration which enables the proxy for the docker registry.
+
+```ini
+server {
+	listen 80;
+	server_name <your-registry-domain>;
+	return 301 https://$server_name$request_uri;
+}
+
+server {
+	listen 443 ssl http2;
+	server_name <your-registry-domain>;
+	ssl_certificate <your-cert>;
+   ssl_certificate_key <your-key>;
+   ssl_trusted_certificate <your-trust-chain>;
+   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+   ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+   ssl_prefer_server_ciphers on;
+   ssl_session_cache shared:SSL:10m;
+   ssl_dhparam <dh-param>;
+   add_header Strict-Transport-Security "max-age=31536000; includeSubdomains;";
+
+	location / {
+  		proxy_set_header Host $http_host;
+  		proxy_set_header X-Real-IP $remote_addr;
+  		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  		proxy_set_header X-Forwarded-Proto $scheme;
+  		proxy_set_header X-Forwarded-Protocol $scheme;
+  		proxy_set_header X-Url-Scheme $scheme;
+		proxy_pass http://docker-registry-ip:5001;
+	}
+}
+```
+
+I hope that this little narration plus some configuration snippet could be helpful. Enjoy :)
