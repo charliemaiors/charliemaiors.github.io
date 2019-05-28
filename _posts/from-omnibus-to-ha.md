@@ -215,18 +215,81 @@ And also as explained in the [guide](https://docs.gitlab.com/ee/administration/h
 # touch /etc/gitlab/skip-autoreconfigure
 ```
 
+We had also to modify both of the instances nginx configuration, in order to be aware of the reverse proxy. The gitlab_nginx final configuration is:
 
-
-```ini
-location /profile/personal_access_tokens {
-   gzip off;
-   proxy_set_header Host $http_host;
-   proxy_set_header X-Real-IP $remote_addr;
-   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-   proxy_set_header X-Forwarded-Proto $scheme;
-   proxy_set_header X-Forwarded-Protocol $scheme;
-   proxy_set_header X-Url-Scheme $scheme;
-   proxy_set_header X-Frame-Options     SAMEORIGIN;
-   proxy_pass http://<gitlab-docker-registry-instance>;
+```ruby
+nginx['real_ip_trusted_addresses'] = [ '<load-balancer-ip>' ]
+nginx['real_ip_header'] = 'X-Forwarded-For'
+nginx['real_ip_recursive'] = 'on'
+nginx['listen_https'] = false
+nginx['listen_port'] = 80
+#nginx['ssl_certificate'] = "<cert>"
+#nginx['ssl_certificate_key'] = "<priv-key>"
+#nginx['redirect_http_to_https'] = true
+nginx['proxy_set_headers'] = {
+  "Host" => "$http_host_with_default",
+  "X-Real-IP" => "$remote_addr",
+  "X-Forwarded-For" => "$proxy_add_x_forwarded_for",
+  "X-Forwarded-Proto" => "https",
+  "X-Forwarded-Ssl" => "on",
+  "Upgrade" => "$http_upgrade",
+  "Connection" => "$connection_upgrade"
 }
 ```
+
+Then we moved to the load balancer to properly configure the vhosts of the registry and gitlab, and also the ssh access to gitlab. The load balancer is an instance of nginx configured to act as reverse-proxy/load-balancer for some services. I will avoid the base configuration and report only the relevant files for each service.
+
+The configuration for the application servers is:
+
+```ini
+upstream gitlab {
+	server <gitlab-instance-1>;
+	server <gitlab-instance-2>;
+}
+
+server {
+	listen 80;
+	server_name <gitlab.your-domain.your-gtld>;
+	return 301 https://$server_name$request_uri;
+}
+server {
+	listen 443 ssl http2;
+	server_name <gitlab.your-domain.your-gtld>;
+	ssl_certificate <your-cert>;
+   ssl_certificate_key <your-key>
+   ssl_trusted_certificate <your-trust-chain>; # For some services which uses gitlab API
+   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+   ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+   ssl_prefer_server_ciphers on;
+   ssl_dhparam <your-dh-param>;
+	server_tokens off;
+	ssl on;
+	add_header X-Content-Type-Options nosniff;
+
+	location / {
+		gzip off;
+  		proxy_set_header Host $http_host;
+  		proxy_set_header X-Real-IP $remote_addr;
+  		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  		proxy_set_header X-Forwarded-Proto $scheme;
+  		proxy_set_header X-Forwarded-Protocol $scheme;
+  		proxy_set_header X-Url-Scheme $scheme;
+		proxy_set_header X-Frame-Options     SAMEORIGIN;
+		proxy_pass http://gitlab;
+	}
+
+   location /profile/personal_access_tokens { 
+      gzip off;   
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Protocol $scheme;
+      proxy_set_header X-Url-Scheme $scheme;
+      proxy_set_header X-Frame-Options     SAMEORIGIN;
+      proxy_pass http://<gitlab-docker-registry-instance>;
+   }
+}
+```
+The last part of the configuration is necessary because in my deployment only one instance has the registry configured, so if the developer needs to generate a token to read or interact with the registry must be redirected to the correct instance. Also the permissions of the instance with docker registry are a super set of the other one.
+As every git 
