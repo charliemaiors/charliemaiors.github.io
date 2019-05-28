@@ -292,4 +292,20 @@ server {
 }
 ```
 The last part of the configuration is necessary because in my deployment only one instance has the registry configured, so if the developer needs to generate a token to read or interact with the registry must be redirected to the correct instance. Also the permissions of the instance with docker registry are a super set of the other one.
-As every git 
+
+Tipically git relies on SSH/HTTP/HTTPS, the above configuration enables only HTTPS so I defined another load balancer rule on the gateway using nginx[ stream module](http://nginx.org/en/docs/stream/ngx_stream_core_module.html), these kind of rules must be defined (or [included](http://nginx.org/en/docs/ngx_core_module.html#include)) outside of the http section.
+
+```ini
+stream {
+	upstream gitlab {
+		server <gitlab-instance-1>:22;
+		server <gitlab-instance-2>:22;
+	}
+
+	server {
+		listen 22 reuseport;
+		proxy_pass gitlab;
+	}
+}
+```
+Finally 
