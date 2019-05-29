@@ -9,7 +9,7 @@ sharing:
 
 # My journey with Gitlab
 
-When I was a research grant at the university we had a problem with SCM, we rely on an old SVN server with all the projects on it and we want to migrate to git. Among the differents on-premise offers (like [Gogs](https://gogs.io/), [Bitbucket server](https://it.atlassian.com/software/bitbucket/download)) we choose [Gitlab](https://about.gitlab.com/) because was (and is) the best on premise SCM solution (and IMHO is growing up quickly also on cloud).
+When I was a research grant at the university we had a problem with SCM, we rely on an old SVN server with all the projects on it and we want to migrate to git. Among the differents on-premise offers (like [Gogs](https://gogs.io/), [Bitbucket server](https://it.atlassian.com/software/bitbucket/download)) we choose [Gitlab](https://about.gitlab.com/) because was (and is) the best on premise SCM solution (and IMHO is growing up quickly also on cloud, they are very active on GCP, see [here](https://about.gitlab.com/2018/10/11/gitlab-com-stability-post-gcp-migration/) and [here](https://about.gitlab.com/2017/03/02/why-we-are-not-leaving-the-cloud/) and many more articles from their [blog](https://about.gitlab.com/blog/)).
 I had a spare bare metal machine, see [figure](optiplex) where I can make all the experiments that I want.
 
 ![optiplex](/assets/img/optiplex.jpg "The spare machine")
@@ -32,7 +32,7 @@ nginx['ssl_certificate_key'] = "<your-cert-key>"
 
 My collegues started also to use it, migrating projects from the old SVN to the new server.
 
-I've started to appreciate also other "side" functionalities, like [Docker](https://www.docker.com/) Registry and the pipeline engine for [CI](https://www.wikiwand.com/en/Continuous_integration).
+I've started to appreciate also other "side" functionalities, like [Docker](https://www.docker.com/) Registry and the pipeline engine for [CI](https://www.wikiwand.com/en/Continuous_integration) with a tons of documentation.
 The configuration of the Docker Registry was pretty straighforward:
 
 ```ruby
@@ -46,10 +46,11 @@ registry_nginx['listen_https'] = true
 registry_nginx['ssl_certificate'] = "<your-cert>" # Obtained with letsencrypt
 registry_nginx['ssl_certificate_key'] = "<your-cert-key>" # Obtained with letsencrypt
 ```
+## Moving to Cloud
 
 After a while also my collegues started using the Gitlab instance, so we decided to migrate on our internal IaaS (Openstack) in order to have higher reliability compared to the [Optiplex](optiplex).
 The migration was pretty much straight forward, I've just re-installed the ```gitlab-omnibus``` package, then restored the latest backup, modified the ```gitlab-secrets.json``` file and everything was up and running (IMHO the migration was very easy).
-I've also appreciated the backup mechanism, which relies on a [Chef Cookbook](https://docs.chef.io/cookbooks.html), for its maximum configurability; in fact we decided to move our backups on the Openstack Object Storage (Swift), the backup mechanism relies on [Fog library](https://github.com/fog/fog-openstack) and the configuration was not so easy. For completeness I will report our configuration (with redacted sensitive values):
+I've also appreciated the backup mechanism, which relies on a [Chef Cookbook](https://docs.chef.io/cookbooks.html), for its maximum configurability; in fact we decided to move our backups on the Openstack Object Storage (Swift), the backup mechanism relies on [Fog library](https://github.com/fog/fog-openstack) and the configuration was not so easy, but after some tests I've found the square. For completeness I will report our configuration (with redacted sensitive values):
 
 ```ruby
 gitlab_rails['backup_keep_time'] = 604800
@@ -128,7 +129,9 @@ gitlab_rails['db_port'] = 5432 # Tipically the 5432
 ```
 5. Then reconfigure and restart (```sudo gitlab-ctl reconfigure && sudo gitlab-ctl restart```)
 
-The migration to the external database was smooth, but a major update (11.9) caused some a little outage; btw we've opened an [issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/59455) and the efficient Gitlab team supported us and in few minutes Gitlab was up and running again.
+The migration to the external database was smooth, but a major update (11.9) caused some a little outage; btw I've opened an [issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/59455) and the efficient Gitlab team supported us and in few minutes Gitlab was up and running again.
+
+## Scaling
 
 Then we decided to move our Gitlab deployment architecture from the AIO with Omnibus to the High Availability with the [horizontal model](https://docs.gitlab.com/ee/administration/high_availability/README.html#horizontal), like the one in [figure](horizontal)
 
@@ -148,7 +151,7 @@ gitlab_rails['redis_sentinels'] = [
 redis['enable'] = false
 redis['master_name'] = '<redis-master-name>'
 ```
-Reading the documentation we found that each instance of the application server must have a NFS share where they can read and write files which becames from git operations (push, pull etc etc), our Openstack Cluster hadn't the possibility to have a [multi-attach volume](https://docs.openstack.org/cinder/latest/admin/blockstorage-volume-multiattach.html) so we decided to deploy a machine with only the [Gitaly](https://docs.gitlab.com/ee/administration/gitaly/) service on it. The migration from the local storage to the Gitaly machine was pretty straightforward, we followed these steps:
+Reading the documentation we found that each instance of the application server must have a NFS share where they can read and write files which becames from git operations (push, pull etc etc), our Openstack Cluster hadn't the possibility to have a [multi-attach volume](https://docs.openstack.org/cinder/latest/admin/blockstorage-volume-multiattach.html) so we decided to deploy a machine with only the [Gitaly](https://docs.gitlab.com/ee/administration/gitaly/) service on it. The migration from the local storage to the Gitaly machine was smooth, we followed these steps:
 
 1. Deploy the machine with enough ram and an high number of vcpu to handle all the requests (for the moment), and a sufficiently big Cinder volume attached
 2. Install Gitlab Omnibus on it, see [here](https://about.gitlab.com/install/)
