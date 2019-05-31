@@ -27,3 +27,5 @@ It could also, with some integrations in terms of software, perform other tasks 
 ### Get Started with Fastlane
 
 Fastlane requires that you have already created the project(s) for your app on the stores, to do that 
+https://themanifest.com/app-development/how-publish-app-google-play-step-step-guide
+https://medium.com/@the_manifest/how-to-publish-your-app-on-apples-app-store-in-2018-f76f22a5c33a
