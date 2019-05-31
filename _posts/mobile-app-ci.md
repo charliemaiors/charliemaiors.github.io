@@ -18,6 +18,11 @@ So far everthing seems a standard procedure, but among the jungle of mobile deve
 Also to deploy in "production" the applications you have to produce a lot of legal documentation (GDPR), and beyond that the developers have to produce screenshots of the application on a subset of devices.
 Fortunately there is a tool which, beyond the legal stuff which is on the company/developer own, there is a tool which cover all the distribution part including screenshots (from the latest releases): Fastlane.
 
-## Fastlane: quick and clean
+## Fastlane: quick and clean 
 
-[Fastlane](https://fastlane.tools/) is a build tools for fast release of the application, which supports also
+[Fastlane](https://fastlane.tools/) is a build tools for fast release of the application, which cover also all the side aspects of application publishing lifecycle.  
+Fastlane could build your application using traditional build methods, like traditional build method for Android spawning a Gradle daemon or using xcodebuild for iOS, but it also support cross development platform like React Native and Flutter; it supports also Ionic (fortunately!) using third party plugins.  
+It could also, with some integrations in terms of software, perform other tasks like screenshots, beta (and also alpha for Android) deployment, and automatic code signing for iOS.
+
+### Get Started with Fastlane
+
