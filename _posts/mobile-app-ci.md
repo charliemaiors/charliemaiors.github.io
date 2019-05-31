@@ -26,3 +26,4 @@ It could also, with some integrations in terms of software, perform other tasks 
 
 ### Get Started with Fastlane
 
+Fastlane requires that you have already created the project(s) for your app on the stores, to do that 
