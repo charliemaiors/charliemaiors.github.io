@@ -26,6 +26,5 @@ It could also, with some integrations in terms of software, perform other tasks 
 
 ### Get Started with Fastlane
 
-Fastlane requires that you have already created the project(s) for your app on the stores, to do that 
-https://themanifest.com/app-development/how-publish-app-google-play-step-step-guide
-https://medium.com/@the_manifest/how-to-publish-your-app-on-apples-app-store-in-2018-f76f22a5c33a
+Fastlane requires that you have already created the project(s) for your app on the stores, to do that there are a lot of articles, personally I suggest the one from [themanifest](https://themanifest.com/app-developmenthow-publish-app-google-play-step-step-guide) for Android and a Medium article from the [same author](https://medium.com/@the_manifest/how-to-publish-your-app-on-apples-app-store-in-2018-f76f22a5c33a) for iOS.  
+Then after the setup (assuming that you have already installed ``fastlane``) you can move into your app directory (``cd <your-app-directory>``) and then run ``fastlane init``; once done that you have a file called ``Fastfile`` where you can setup your ``lanes`` and another file called ``Appfile``.  
