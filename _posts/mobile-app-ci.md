@@ -40,4 +40,44 @@ lane :playstore do
   upload_to_play_store # Uploads the APK built in the gradle step above and releases it to all production users
 end
 ```
-this lane will build your android application and, if everything went fine, upload the APK to play store "in production"
+this lane will build your android application and, if everything went fine, upload the APK to play store "in production" (where production means the release branch of the store). 
+
+### Fastlane features
+
+Fastlane supports side tasks in mobile app distribution like screenshots for [iOS](https://docs.fastlane.tools/getting-started/ios/screenshots/) and [Android](https://docs.fastlane.tools/getting-started/android/screenshots/), leveraging on emulators for both platforms and other third party software, this procedure could be automated in the FastFile using specific actions.
+
+```ruby
+lane :screenshots do
+  capture_screenshots
+  upload_to_app_store
+end
+```
+For iOS is pretty straight forward because everything is integrated with the development platform, on Android is different, see the [guide](https://docs.fastlane.tools/getting-started/android/screenshots/)
+
+```ruby
+lane :screenshots do
+  capture_android_screenshots
+  upload_to_play_store
+end
+```
+The Android screenshots part is require ``screengrab`` to take screenshots from mobile emulator.  
+Fastlane originally was designed to support the entire lifecycle of native-developed mobile applications, in fact the developer could also run tests.  
+
+```ruby
+lane :tests do
+  gradle(task: "test")
+end
+```
+The above lane show how to run tests on Android, for iOS, instead, it relies on a custom action because the build process is sliced in different tools.
+
+```ruby
+lane :tests do
+  run_tests(workspace: "Example.xcworkspace",
+            devices: ["iPhone 6s", "iPad Air"],
+            scheme: "MyAppTests")
+end
+```
+When hybrid/cross development platforms began to became popular, and also to support integration with other horizontal platforms for developers (like slack, hipchat and so on) the Fastlane developers defined a plugin system. Each plugin define custom actions, for instance you can send a message to a slack channel, to be support other platforms or system.  
+
+
+
