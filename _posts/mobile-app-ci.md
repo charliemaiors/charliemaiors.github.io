@@ -78,6 +78,6 @@ lane :tests do
 end
 ```
 When hybrid/cross development platforms began to became popular, and also to support integration with other horizontal platforms for developers (like slack, hipchat and so on) the Fastlane developers defined a plugin system. Each plugin define custom actions, for instance you can send a message to a slack channel, to be support other platforms or system.  
-
+  
 
 
