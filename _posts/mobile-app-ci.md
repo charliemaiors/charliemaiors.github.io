@@ -77,7 +77,10 @@ lane :tests do
             scheme: "MyAppTests")
 end
 ```
-When hybrid/cross development platforms began to became popular, and also to support integration with other horizontal platforms for developers (like slack, hipchat and so on) the Fastlane developers defined a plugin system. Each plugin define custom actions, for instance you can send a message to a slack channel, to be support other platforms or system.  
-  
+When hybrid/cross development platforms began to become popular, and also to support integration with other horizontal platforms for developers (like slack, hipchat and so on) the Fastlane developers defined a plugin system. Each plugin define custom actions, for instance you can send a message to a slack channel, to be support other platforms or system.  
+For instance with the ``gmail`` plugin the developer could send a short report using ``gmail``, but there are a tons of plugins to upload file to slack, or handle firebase, handle version number and so on and so forth.
 
+### Hybrid platforms
+
+Although Fastlane has a huge support to native development, it support also a wide variety of hybrid platforms.
 
