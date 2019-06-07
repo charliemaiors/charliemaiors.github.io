@@ -82,5 +82,9 @@ For instance with the ``gmail`` plugin the developer could send a short report u
 
 ### Hybrid platforms
 
-Although Fastlane has a huge support to native development, it support also a wide variety of hybrid platforms.
+Although Fastlane has a huge support to native development, it could handle also a wide variety of hybrid platforms. Platforms like Flutter and React Native are supported using the normal build process, more details [here](https://flutter.dev/docs/deployment/fastlane-cd) for Flutter and [here](https://carloscuesta.me/blog/shipping-react-native-apps-with-fastlane/) for React Native, Xamarin and Ionic/Cordova, instead, are supported through [plugins](https://docs.fastlane.tools/plugins/available-plugins/) (``ionic`` and ``xamarin``).
+
+## Gitlab CI for mobile applications
+
+[Gitlab CI](https://www.google.com/search?q=gitlab+ci&oq=gitlab+ci&aqs=chrome..69i57j69i60l5.2173j0j4&sourceid=chrome&ie=UTF-8) is an embedded CI/CD pipeline tool, it leverage on [runners](https://docs.gitlab.com/runner/)
 
