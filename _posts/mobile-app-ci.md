@@ -86,5 +86,5 @@ Although Fastlane has a huge support to native development, it could handle also
 
 ## Gitlab CI for mobile applications
 
-[Gitlab CI](https://www.google.com/search?q=gitlab+ci&oq=gitlab+ci&aqs=chrome..69i57j69i60l5.2173j0j4&sourceid=chrome&ie=UTF-8) is an embedded CI/CD pipeline tool, it leverage on [runners](https://docs.gitlab.com/runner/) to perform tasks. In order to define a proper pipeline the developer must include a file named ``.gitlab-ci.yml``
+[Gitlab CI](https://www.google.com/search?q=gitlab+ci&oq=gitlab+ci&aqs=chrome..69i57j69i60l5.2173j0j4&sourceid=chrome&ie=UTF-8) is an embedded CI/CD pipeline tool, it leverage on [runners](https://docs.gitlab.com/runner/) to perform tasks. In order to define a proper pipeline the developer must include a file named ``.gitlab-ci.yml`` in the repository. 
 
