@@ -114,4 +114,52 @@ The runner could be configured using the toml file, see gitlab runner advanced c
 ### Gitlab CI files and instructions
 
 The CI pipeline must be defined using a yaml configuration file, which allows define jobs, prepare the environment, perform other steps after each job or at the end of the pipeline.  
-The developer could select which type of runner use in the CI build, using keywords like ``image``, ``services``
+The developer could select which type of runner use in the CI build, using keywords like ``image``, ``services`` or even ``tags`` to give some "hints" to the Gitlab CI job scheduler; if there aren't any feasible runner the job will remain in pending state. The CI jobs could be triggered only for special branches, or for some references (or tags) could perform deployment tasks.  
+For instance this is an example (taken from Gitlab blog) of CI file for Android:
+
+```yml
+image: openjdk:8-jdk
+
+variables:
+  ANDROID_COMPILE_SDK: "28"
+  ANDROID_BUILD_TOOLS: "28.0.2"
+  ANDROID_SDK_TOOLS:   "4333796"
+
+before_script:
+  - apt-get --quiet update --yes
+  - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+  - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS}.zip
+  - unzip -d android-sdk-linux android-sdk.zip
+  - echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}" >/dev/null
+  - echo y | android-sdk-linux/tools/bin/sdkmanager "platform-tools" >/dev/null
+  - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" >/dev/null
+  - export ANDROID_HOME=$PWD/android-sdk-linux
+  - export PATH=$PATH:$PWD/android-sdk-linux/platform-tools/
+  - chmod +x ./gradlew
+  # temporarily disable checking for EPIPE error and use yes to accept all licenses
+  - set +o pipefail
+  - yes | android-sdk-linux/tools/bin/sdkmanager --licenses
+  - set -o pipefail
+
+stages:
+  - build
+  - test
+
+lintDebug:
+  stage: build
+  script:
+    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+
+assembleDebug:
+  stage: build
+  script:
+    - ./gradlew assembleDebug
+  artifacts:
+    paths:
+    - app/build/outputs/
+
+debugTests:
+  stage: test
+  script:
+    - ./gradlew -Pci --console=plain :app:testDebug
+```
