@@ -86,5 +86,32 @@ Although Fastlane has a huge support to native development, it could handle also
 
 ## Gitlab CI for mobile applications
 
-[Gitlab CI](https://www.google.com/search?q=gitlab+ci&oq=gitlab+ci&aqs=chrome..69i57j69i60l5.2173j0j4&sourceid=chrome&ie=UTF-8) is an embedded CI/CD pipeline tool, it leverage on [runners](https://docs.gitlab.com/runner/) to perform tasks. In order to define a proper pipeline the developer must include a file named ``.gitlab-ci.yml`` in the repository. 
+[Gitlab CI](https://www.google.com/search?q=gitlab+ci&oq=gitlab+ci&aqs=chrome..69i57j69i60l5.2173j0j4&sourceid=chrome&ie=UTF-8) is an embedded CI/CD pipeline tool, it leverage on [runners](https://docs.gitlab.com/runner/) to perform tasks. In order to define a proper pipeline the developer must include a file named ``.gitlab-ci.yml`` in the repository.  
+Runner allows to run:
+* Multiple jobs concurrently.
+* Use multiple tokens with multiple server (even per-project).
+* Limit number of concurrent jobs per-token.
+Each runner jobs can be run:
+* Locally.
+* Using Docker containers.
+* Using Docker containers and executing job over SSH.
+* Using Docker containers with autoscaling on different clouds and virtualization hypervisors.
+* Connecting to remote SSH server.
+The runner:
+* Is written in Go and distributed as single binary without any other requirements.
+* Supports Bash, Windows Batch, and Windows PowerShell.
+* Works on GNU/Linux, macOS, and Windows (pretty much anywhere you can run Docker).
+* Allows customization of the job running environment.
+* Automatic configuration reload without restart.
+* Easy to use setup with support for Docker, Docker-SSH, Parallels, or SSH running environments.
+* Enables caching of Docker containers.
+* Easy installation as a service for GNU/Linux, macOS, and Windows.
+* Embedded Prometheus metrics HTTP server.  
+(credits Gitlab Runner [documentation](https://docs.gitlab.com/runner/#features))
 
+The runner could be configured using the toml file, see gitlab runner advanced configuration [here](https://docs.gitlab.com/runner/configuration/advanced-configuration.html) for details
+
+### Gitlab CI files and instructions
+
+The CI pipeline must be defined using a yaml configuration file, which allows define jobs, prepare the environment, perform other steps after each job or at the end of the pipeline.  
+The developer could select which type of runner use in the CI build, using keywords like ``image``, ``services``
