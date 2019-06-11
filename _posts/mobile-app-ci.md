@@ -109,13 +109,13 @@ The runner:
 * Embedded Prometheus metrics HTTP server.  
 (credits Gitlab Runner [documentation](https://docs.gitlab.com/runner/#features))
 
-The runner could be configured using the toml file, see gitlab runner advanced configuration [here](https://docs.gitlab.com/runner/configuration/advanced-configuration.html) for details
+The runner could be configured using the toml file, see gitlab runner advanced configuration [here](https://docs.gitlab.com/runner/configuration/advanced-configuration.html) for details, each runner could be registered multiple times with different providers; for instance a runner on macOS could accept shell tasks (for mobile app build) and also docker build stuff, a windows runner could execute shell tasks and docker (for windows containers) build.
 
 ### Gitlab CI files and instructions
 
-The CI pipeline must be defined using a yaml configuration file, which allows define jobs, prepare the environment, perform other steps after each job or at the end of the pipeline.  
+The CI pipeline must be defined using a [yaml configuration](https://docs.gitlab.com/ee/ci/yaml/) file, which allows define jobs, prepare the environment, perform other steps after each job or at the end of the pipeline.  
 The developer could select which type of runner use in the CI build, using keywords like ``image``, ``services`` or even ``tags`` to give some "hints" to the Gitlab CI job scheduler; if there aren't any feasible runner the job will remain in pending state. The CI jobs could be triggered only for special branches, or for some references (or tags) could perform deployment tasks.  
-For instance this is an example (taken from Gitlab blog) of CI file for Android:
+For instance this is an example (taken from Gitlab [blog](https://about.gitlab.com/2018/10/24/setting-up-gitlab-ci-for-android-projects/)) of CI file for Android:
 
 ```yml
 image: openjdk:8-jdk
@@ -163,3 +163,9 @@ debugTests:
   script:
     - ./gradlew -Pci --console=plain :app:testDebug
 ```
+
+This CI define 2 main stages, build and test, in the first one it will perform some lint task and then build for debug purposes the application, the test stage instead is used to run tests. The before script session will be performed before every job in order to prepare the environment. The entire build/test process will be performed in docker containers.  
+
+## Combine fastlane and Gitlab: use case with Ionic
+
+Although, as discussed previously, Fastlane is mainly designed for natvie mobile app development it supports also third part frameworks like [Ionic](https://ionicframework.com/) through its plugin mechanism; combined with Gitlab CI pipelines, the automation process will be very straightforward.  
