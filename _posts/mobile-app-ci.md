@@ -169,8 +169,21 @@ This CI define 2 main stages, build and test, in the first one it will perform s
 ## Combine fastlane and Gitlab: use case with Ionic
 
 Although, as discussed previously, Fastlane is mainly designed for natvie mobile app development it supports also third part frameworks like [Ionic](https://ionicframework.com/) through its plugin mechanism; combined with Gitlab CI pipelines, the automation process will be very straightforward.  
-First of all the developer have to do the Fastlane setup process for all the platform that he wants to support (Android and/or iOS) producing the ``Fastfile`` and the ``Appfile``, personally I prefer to group all the Fastlane-relative files in a single folder on the root of the application project; another step that has to be done before proceed, or at least before the first release in production/beta/alpha round, is the merge of the AppFile for the credentials of Android and iOS. 
+First of all the developer have to do the Fastlane setup process for all the platform that he wants to support (Android and/or iOS) producing the ``Fastfile`` and the ``Appfile``, personally I prefer to group all the Fastlane-relative files in a single folder on the root of the application project; another step that has to be done before proceed, or at least before the first release in production/beta/alpha round, is the merge of the AppFile for the credentials of Android and iOS. A simple example of merged Appfile could be:
 
+```ruby
+# Apple Account configuration
+app_identifier("<your-bundle-identifier>") # The bundle identifier of your app
+apple_id("<your-apple-id>") # Your Apple email address
+
+itc_team_id("<itc-team-id>") # App Store Connect Team ID
+team_id("<team-id>") # Developer Portal Team ID
+
+# Android account configuration
+package_name("<your-package-name>") # e.g. com.krausefx.app
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
+```
 
 
 ```ruby
