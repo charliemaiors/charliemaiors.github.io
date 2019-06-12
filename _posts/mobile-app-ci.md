@@ -169,3 +169,106 @@ This CI define 2 main stages, build and test, in the first one it will perform s
 ## Combine fastlane and Gitlab: use case with Ionic
 
 Although, as discussed previously, Fastlane is mainly designed for natvie mobile app development it supports also third part frameworks like [Ionic](https://ionicframework.com/) through its plugin mechanism; combined with Gitlab CI pipelines, the automation process will be very straightforward.  
+First of all the developer have to do the Fastlane setup process for all the platform that he wants to support (Android and/or iOS) producing the ``Fastfile`` and the ``Appfile``, personally I prefer to group all the Fastlane-relative files in a single folder on the root of the application project; another step that has to be done before proceed, or at least before the first release in production/beta/alpha round, is the merge of the AppFile for the credentials of Android and iOS. 
+
+
+
+```ruby
+platform :android do
+  desc "Build the Android stuff in order to check if everything is correct"
+  lane :build do
+    ionic(platform: 'android', release: false, device: false)
+  end
+
+  desc "Upload to alpha channel"
+  lane :alpha do
+    current_dir=Dir.pwd
+    ionic(platform: 'android', device: false, keystore_path: current_dir+'/my-release-key.keystore', keystore_password: ENV['STORE_PASS'], keystore_alias: '<your-key-alias>')
+    upload_to_play_store(track: 'alpha', json_key:current_dir+'/api.json', apk: 'platforms/android/app/build/outputs/apk/release/app-release.apk')
+  end
+
+  desc "Upload to beta channel"
+  lane :beta do
+    current_dir=Dir.pwd
+    ionic(platform: 'android', device: false, keystore_path: current_dir+'/my-release-key.keystore', keystore_password: ENV['STORE_PASS'], keystore_alias: '<your-key-alias>')
+    upload_to_play_store(track: 'beta', json_key:current_dir+'/api.json', apk: 'platforms/android/app/build/outputs/apk/release/app-release.apk')
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    current_dir=Dir.pwd
+    ionic(platform: 'android', device: false, keystore_path: current_dir+'/my-release-key.keystore', keystore_password: ENV['STORE_PASS'], keystore_alias: '<your-key-alias>')
+    upload_to_play_store(json_key:current_dir+'/api.json', apk: 'platforms/android/app/build/outputs/apk/release/app-release.apk')
+  end
+end
+
+platform :ios do
+
+  desc "Build iOS in order to check if everthing is fine"
+  lane :build do
+    ionic(platform: 'ios', type: 'development', device: false, release: false)
+  end
+
+  desc "Upload to testflight"
+  lane :beta do
+    cert
+    sigh
+    ionic(platform: 'ios', device: false)
+    ipa_path=gym(project:'./platforms/ios/<your-app-name>.xcodeproj',codesigning_identity:'<Code-signin-identity>')
+    testflight(skip_waiting_for_build_processing: true, ipa: ipa_path)
+  end
+
+  desc "Upload to production"
+  lane :deploy do
+    cert
+    sigh
+    ionic(platform: 'ios', device: false)
+    ipa_path=gym(project:'./platforms/ios/<your-app-name>.xcodeproj',codesigning_identity:'<Code-signin-identity>')
+    deliver(ipa: ipa_path)
+  end
+end
+
+```
+
+```yaml
+image: cmaiorano/ionic-builder
+
+stages:
+  - build
+  - publish
+
+cache:
+  untracked: true
+  key: "$CI_PROJECT_ID"
+  paths:
+    - node_modules/
+
+build_android:
+  stage: build
+  before_script:
+    - npm i
+  script:
+    - fastlane android build
+
+release_ios:
+  stage: publish
+  only:
+    - master
+  before_script:
+    - npm i
+    - fastlane install_plugins
+  script:
+    - fastlane ios beta  
+  tags:
+    - macosx
+
+release_android:
+  stage: publish
+  only:
+    - master
+  before_script:
+  - npm i
+  script:
+    - fastlane android alpha
+
+```
