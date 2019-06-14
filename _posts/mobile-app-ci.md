@@ -254,7 +254,8 @@ platform :ios do
 end
 
 ```
-The above ``Fastfile`` define a release process for Android alpha, beta and production stages, instead for iOS you can define just the Testflight and release lanes. 
+The above ``Fastfile`` define a release process for Android alpha, beta and production stages, instead for iOS you can define just the Testflight and release lanes. The above process could be easily integrated with also the screenshot part but the ``Ionic`` plugin does not allow to run tests; to run tests you have to rely on other plugins for interaction with shell, and use ``ionic cli`` to run them.  
+The integration with Gitlab CI is pretty easy, but in order to build and release the iOS version you have to register a ``gitlab-runner`` which runs on macOS (you can use a hosting service like [xCloud](https://xcloud.me/))
 
 ```yaml
 image: cmaiorano/ionic-builder
