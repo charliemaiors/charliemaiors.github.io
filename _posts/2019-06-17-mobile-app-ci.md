@@ -281,6 +281,7 @@ build_ios:
   stage: build
   before_script:
     - npm i
+    - fastlane install_plugins
   script:
     - fastlane ios build
 
@@ -288,6 +289,7 @@ beta_ios:
   stage: publish
   only:
     - develop
+    - /^feature-.*$/
   before_script:
     - npm i
     - fastlane install_plugins
@@ -295,6 +297,16 @@ beta_ios:
     - fastlane ios beta  
   tags:
     - macosx
+
+alpha_android:
+  stage: publish
+  only:
+    - /^feature-.*$/
+  before_script:
+    - npm i
+  script:
+    - fastlane android alpha
+
 
 beta_android:
   stage: publish
@@ -311,6 +323,7 @@ release_ios:
     - master
   before_script:
   - npm i
+  - fastlane install_plugins
   script:
     - fastlane ios deploy
   tags:
@@ -326,4 +339,4 @@ release_android:
     - fastlane android deploy
 ```
 
-The image used for CI was developed for 
+The image used for CI was developed for build Android application using the Android SDK plus the ionic environment and Fastlane with Ionic plugin. The above ``gitlab-ci`` file does not respect the Git-Flow idea but takes into account an hybrid application development and distribution.
