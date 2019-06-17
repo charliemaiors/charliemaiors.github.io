@@ -255,7 +255,7 @@ end
 
 ```
 The above ``Fastfile`` define a release process for Android alpha, beta and production stages, instead for iOS you can define just the Testflight and release lanes. The above process could be easily integrated with also the screenshot part but the ``Ionic`` plugin does not allow to run tests; to run tests you have to rely on other plugins for interaction with shell, and use ``ionic cli`` to run them.  
-The integration with Gitlab CI is pretty easy, but in order to build and release the iOS version you have to register a ``gitlab-runner`` which runs on macOS (you can use a hosting service like [xCloud](https://xcloud.me/))
+The integration with Gitlab CI is pretty easy, but in order to build and release the iOS version you have to register a ``gitlab-runner`` which runs on macOS (you can use a hosting service like [xCloud](https://xcloud.me/)) and you can select it in the CI file using tags. The macOS runner must be configured to run shell tasks because there are not any macOS docker container. This is my CI file for the my Ionic Application: 
 
 ```yaml
 image: cmaiorano/ionic-builder
@@ -264,7 +264,7 @@ stages:
   - build
   - publish
 
-cache:
+cache: # Working with runner cache
   untracked: true
   key: "$CI_PROJECT_ID"
   paths:
@@ -277,15 +277,42 @@ build_android:
   script:
     - fastlane android build
 
-release_ios:
+build_ios:
+  stage: build
+  before_script:
+    - npm i
+  script:
+    - fastlane ios build
+
+beta_ios:
   stage: publish
   only:
-    - master
+    - develop
   before_script:
     - npm i
     - fastlane install_plugins
   script:
     - fastlane ios beta  
+  tags:
+    - macosx
+
+beta_android:
+  stage: publish
+  only:
+    - develop
+  before_script:
+  - npm i
+  script:
+    - fastlane android beta
+
+release_ios:
+  stage: publish
+  only:
+    - master
+  before_script:
+  - npm i
+  script:
+    - fastlane ios deploy
   tags:
     - macosx
 
@@ -296,6 +323,7 @@ release_android:
   before_script:
   - npm i
   script:
-    - fastlane android alpha
-
+    - fastlane android deploy
 ```
+
+The image used for CI was developed for 
