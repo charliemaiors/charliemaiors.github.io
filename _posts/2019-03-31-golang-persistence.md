@@ -2,7 +2,7 @@
 layout: post
 title:  "A humble point of view on how to organize persistence in Go"
 comments: true
-categories: ansible
+categories: golang
 sharing:
   twitter: A humble point of view on how to organize persistence in Go
   facebook: A humble point of view on how to organize persistence in Go
