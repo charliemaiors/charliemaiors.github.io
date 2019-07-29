@@ -40,7 +40,14 @@ go build -o whatever <your-main-file>.go
 ## A simple introduction to [Cobra](http://github.com/spf13/cobra)
 
 Cobra is a standard de-facto for CLI applications developed in Golang, among the different projects which uses cobra we can find the [Kubernetes](https://kubernetes.io/) CLI.  
-Cobra has also a practical CLI generator (which is written using cobra itself) to define your project structure, it can be installed using ``go get -u github.com/spf13/cobra/cmd`` and then run ``cobra init <project-name>``. 
+Cobra has also a practical CLI generator (which is written using cobra itself) to define your project structure, it can be installed using ``go get -u github.com/spf13/cobra/cmd`` and then run ``cobra init <project-name>``.   
+Cobra supports all the main features for a CLI application:
+
+* Flags and pflags
+* Usage and flags documentation generation
+* Subcommands with relative documentation generation
+* A deep integration with [Viper](https://github.com/spf13/viper) to handle configuration and binding with environment variables for flag substitution.
+
 
 
 - Introduzione a Cobra 
