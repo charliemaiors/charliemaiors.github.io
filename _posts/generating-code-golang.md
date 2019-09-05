@@ -58,5 +58,36 @@ Cobra, as far as I've tested, supports also Go [modules](https://blog.golang.org
 * Multiples assignments
 * and so on...
 
-- Introduzione a Jennifer
+Also it supports automatic imports (using the `Qual()` function) and is intrisecally integrated with CI/CD tools because of the compilation phase after the code generation,wich could be a pre-test environment.
+For instance the user can generate a new file with all imports like this (taken from Jennifer documentation):
+
+```golang
+f := NewFilePath("a.b/c")
+f.Func().Id("init").Params().Block(
+	Qual("a.b/c", "Foo").Call().Comment("Local package - name is omitted."),
+	Qual("d.e/f", "Bar").Call().Comment("Import is automatically added."),
+	Qual("g.h/f", "Baz").Call().Comment("Colliding package name is renamed."),
+)
+fmt.Printf("%#v", f)
+
+// Output:
+// package c
+//
+// import (
+// 	f "d.e/f"
+// 	f1 "g.h/f"
+// )
+//
+// func init() {
+// 	Foo()    // Local package - name is omitted.
+// 	f.Bar()  // Import is automatically added.
+// 	f1.Baz() // Colliding package name is renamed.
+// }
+```
+
+## A pratical example
+
+Personally I've used Jennifer, with Cobra, for a project during my research career. I had to write a client (in Golang) for the [Shinobi Platform](https://shinobi.video/) in order to interact with it using the APIs, in particular shinobi offers a lot of configuration to connect a new IP camera to the system. I need to have a map with all the possible configurations in order to programmatically define a new camera via API.  
+The project starts with the configuration of the 
+
 - Esempio da Gitlab
