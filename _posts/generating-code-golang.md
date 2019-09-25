@@ -88,6 +88,6 @@ fmt.Printf("%#v", f)
 ## A pratical example
 
 Personally I've used Jennifer, with Cobra, for a project during my research career. I had to write a client (in Golang) for the [Shinobi Platform](https://shinobi.video/) in order to interact with it using the APIs, in particular shinobi offers a lot of configuration to connect a new IP camera to the system. I need to have a map with all the possible configurations in order to programmatically define a new camera via API.  
-The project starts with the configuration of the new camera enabling the user to define a new monitored host. The available list could be 
+The project starts with the configuration of the new camera enabling the user to define a new monitored host. The client needs a data structure to grab the correct combination of camera brand and desired stream [gitab repo](https://gitlab.com/Shinobi-Systems/cameraConnectionList) 
 
 - Esempio da Gitlab
