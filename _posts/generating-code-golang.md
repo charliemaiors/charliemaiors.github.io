@@ -88,6 +88,75 @@ fmt.Printf("%#v", f)
 ## A pratical example
 
 Personally I've used Jennifer, with Cobra, for a project during my research career. I had to write a client (in Golang) for the [Shinobi Platform](https://shinobi.video/) in order to interact with it using the APIs, in particular shinobi offers a lot of configuration to connect a new IP camera to the system. I need to have a map with all the possible configurations in order to programmatically define a new camera via API.  
-The project starts with the configuration of the new camera enabling the user to define a new monitored host. The client needs a data structure to grab the correct combination of camera brand and desired stream [gitab repo](https://gitlab.com/Shinobi-Systems/cameraConnectionList) 
+The project starts with the configuration of the new camera enabling the user to define a new monitored host. The client needs a data structure to grab the correct combination of camera brand and desired stream, in order to expose a properly formatted list of camera streaming options. First of all you have to clone the [gitab repo](https://gitlab.com/Shinobi-Systems/cameraConnectionList) of the camera connection list, then write a parser for the repo structure which is pretty straight forward (for instance [here](https://gitlab.com/charliemaiors/shinobi-param-generator/tree/master/parser) you can find a first version of it).  
+Then you have to model, using the Jennifer generator library, your data structure and the related methods, for instance we can define `struct` for the baseline:
 
-- Esempio da Gitlab
+```go
+  file := jen.NewFilePathName(dest, pkg) //define the destination file
+	file.Comment("This is a generated file for mapping shinobi params from param source, DO NOT EDIT!!!") //comment it!!!
+
+	file.Comment("Path represent a path with given default values if present")
+	file.Type().Id("Path").Struct( //Define your custom data structures
+		jen.Id("IsSecure").Bool(),
+		jen.Id("SubPath").String(),
+	)
+
+	file.Comment("//Codec represent a subset of paths for a given codec")
+	file.Type().Id("Codec").Struct(
+		jen.Id("CodecType").String(),
+		jen.Id("Paths").Index().Id("Path"),
+	)
+
+	file.Comment("//Protocol is the structure which represent a particular IPCam with it's vendor, protocol, codec and relative subpath")
+	file.Type().Id("Protocol").Struct(
+		jen.Id("Connection").String(),
+		jen.Id("Models").Index().String(),
+		jen.Id("Codecs").Id("[]Codec"),
+	)
+
+	file.Var().Id("paramsMap").Op("=").Map(jen.String()).Id("[]Protocol").Values(generator.generateDict(params))
+
+```
+
+Then you can also define your public and private functions:
+
+```go
+  file.Comment("//TakeAllPathsForVendorWithProtocol takes vendor and protocol and select the possibles values from paramsMap")
+	file.Func().Id("TakeAllPathsForVendorWithProtocol").Params(jen.Id("vendor").String(), jen.Id("protocol").String()).Parens(jen.Id("Protocol").Op(",").Error()).Block(
+		jen.Id("protocolsForVendor").Op(":=").Id("paramsMap").Id("[vendor]"),
+		jen.For(jen.Id("_").Op(",").Id("current").Op(":=").Range().Id("protocolsForVendor")).Block(
+			jen.If(jen.Id("current").Op(".").Id("Connection").Op("==").Id("protocol")).Block(
+				jen.Return(jen.Id("current"), jen.Nil()),
+			),
+		),
+		jen.Return(jen.Id("Protocol{}"), jen.Qual("errors", "New").Call(jen.Lit("No protocol found"))),
+	)
+
+	file.Comment("//TakeProtocolForModel takes vendor and model and select the correspondent protocol")
+	file.Func().Id("TakeProtocolForModel").Params(jen.Id("model").String(), jen.Id("vendor").String()).Parens(jen.Id("Protocol").Op(",").Error()).Block(
+		jen.Id("protocolsForVendor").Op(":=").Id("paramsMap").Id("[vendor]"),
+		jen.For(jen.Id("_").Op(",").Id("protocol").Op(":=").Range().Id("protocolsForVendor")).Block(
+			jen.If(jen.Qual(pkg, "containsModel").Call(jen.Id("protocol").Op(".").Id("Models"), jen.Id("model"))).Block(
+				jen.Return(jen.Id("protocol"), jen.Nil()),
+			),
+		),
+		jen.Return(jen.Id("Protocol{}"), jen.Qual("errors", "New").Call(jen.Lit("No protocol found"))),
+	)
+
+```
+
+For the public part,and the following for the private part:
+
+```go
+  file.Func().Id("containsModel").Params(jen.Id("models").Id("[]string"),      jen.Id("model").String()).Bool().Block(
+		jen.For(jen.Id("_").Op(",").Id("mod").Op(":=").Range().Id("models").Block(
+			jen.If(jen.Id("mod").Op("==").Id("model").Block(
+				jen.Return(jen.True()),
+			)),
+		)),
+		jen.Return(jen.False()),
+	)
+
+```
+
+The full generator code is available [here](https://gitlab.com/charliemaiors/shinobi-param-generator/tree/master/generator).
