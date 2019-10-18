@@ -20,13 +20,6 @@ description: >- # this means to ignore newlines until "baseurl:"
   DevOps tools (ansible, terraform), OSes (FreeBSD,Linux, Windows) and some golang stuff; you can find also travel experiences and recommendation.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://www.carlomaiorano.me" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: carlomaiorano87
-github_username: charliemaiors
-gitlab_username: charliemaiors
-instagram_username: charliemaiors
-telegram_username: charliemaiors
-docker_username: cmaiorano
-google_analytics: UA-132864306-1
 disqus:
   shortname: carloblog
 
@@ -35,6 +28,16 @@ markdown: kramdown
 theme: minima
 plugins:
   - jekyll-feed
+
+minima:
+  social_links:
+    twitter: carlomaiorano87
+    github: charliemaiors
+    facebook: cmaioranopicone
+    instagram: charliemaiors
+    linkedin: pasquale-carlo-maiorano-picone
+    telegram: charliemaiors
+    keybase: cmaiorano
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
