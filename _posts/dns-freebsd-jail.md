@@ -21,7 +21,7 @@ We have to install the `bind9` package using: `pkg install -y bind9`, then we ha
 
 ## Jail and Server Configuration
 
-We want to install a local-authoritative DNS server so we do
+We want to install a local-authoritative DNS server so we have to configure the 
 
 
 ## Host Configuration
