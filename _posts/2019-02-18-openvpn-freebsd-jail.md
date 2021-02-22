@@ -146,7 +146,7 @@ Now we will configure the OpenVPN server:
   ```
 
 * Run the service ```service openvpn start``` (NOTE: if it fails run on the host system ```ifconfig tun0 inet 10.8.0.2 10.8.0.1``` only for the first time)
-* Generate the client credentials, I've created a set of script to create the base configuration and then generate each client ovpn file. You can clone the running: ```git clone https://cmaiorano@bitbucket.org/cmaiorano/openvpn-client-generator.git```
+* Generate the client credentials, I've created a set of script to create the base configuration and then generate each client ovpn file. You can clone the running: ```git clone https://bitbucket.org/cmaiorano/openvpn-client-generator.git```
 * Move into directory: ```cd openvpn-client-generator/```
 * Run ```./generate-base-conf.sh``` for the first time, then for each client run ```./generate-client.sh <client-name>```.
 * You can also revoke a client certificate running ```./revoke-client.sh```, it will also generate a crl and add it to your openvpn server configuration, then you have to reload the service.
