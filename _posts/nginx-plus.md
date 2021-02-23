@@ -9,16 +9,16 @@ sharing:
 
 # Why test Nginx Plus?
 
-Nowadays Nginx is one of the most popular webserver/reverse proxy and  loadbalancer, let alone as Ingress/IngressController on Kubernetes which was one of the first implementation and the most used.  
-Nginx offer (among the other products) is tiered in 2 levels: the open source, and the plus implementation.  
+Nowadays Nginx is one of the most popular web server/reverse proxy and  loadbalancer, let alone as Ingress/IngressController on Kubernetes which was one of the first implementations and the most used.  
+Nginx offers (among the other products) is tiered in 2 levels: the open source, and the plus implementation.  
 The Plus implementation offers, beyond the functionalities offered by the open source version, many other interesting features (for a more detailed comparison look at [this comparison](https://www.nginx.com/products/nginx/compare-models)):
 
 * Active/Passive application health checking
 * Activity monitoring
 * Advanced Loadbalancing
 * Reconfiguration on-the-fly
-* Extendend logging capabilities
+* Extended logging capabilities
 * Adaptive media streaming
 * High availability setup  
 
-Use these extended functionalities above
+I've tried the healthcheck feature on the minio cluster (check the [article](https://www.carlomaiorano.me/freebsd/2021/02/21/minio-ha.html)), and also the dashboard to check the current state of the web server.
