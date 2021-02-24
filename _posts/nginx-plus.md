@@ -21,4 +21,8 @@ The Plus implementation offers, beyond the functionalities offered by the open s
 * Adaptive media streaming
 * High availability setup  
 
-I've tried the healthcheck feature on the minio cluster (check the [article](https://www.carlomaiorano.me/freebsd/2021/02/21/minio-ha.html)), and also the dashboard to check the current state of the web server.
+I've tried the healthcheck feature on the minio cluster (check the [article](https://www.carlomaiorano.me/freebsd/2021/02/21/minio-ha.html)), and also the dashboard to check the current state of the web server. I'm also planning to test the extended logging and the high availability setup.  
+
+## Ask for a license
+
+The license is available **ONLY** for side **NON**-commercial projects.
