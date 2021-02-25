@@ -25,4 +25,13 @@ I've tried the healthcheck feature on the minio cluster (check the [article](htt
 
 ## Ask for a license
 
-The license is available **ONLY** for side **NON**-commercial projects.
+The license is available **ONLY** for side **NON**-commercial projects. In order to request the license you have to send an email to the [devsupport](mailto:devsupport@nginx.com?subject=Nginx%20Plus%20dev%20license) explaining why you need a dev license; I wrote a few lines about what I'm doing and one sentence on what I want to do with the Plus version of Nginx.  
+After a while (some days) you will receive a code that must be filled in the [developer license portal](https://www.nginx.com/developer-license/).
+
+![The developer porta](/assets/img/portalpng.png)
+
+After that you will receive a mail with an activation URL to download the key for the license. To install Nginx Plus on your distribution (Nginx Plus is a different package from Nginx open source), check the [repo_setup](https://cs.nginx.com/repo_setup) site.  
+
+## Conclusions
+
+Nginx Plus has many interesting features and the Nginx's dev support is very kind to provide a free license for home/side projects.
