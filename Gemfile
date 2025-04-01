@@ -20,6 +20,7 @@ gem "jekyll", "~> 3.9"
 # If you have any plugins, put them here!
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.6"
+  gem "rss", "~> 0.3.1"
   gem "jekyll-import", git: "https://github.com/jekyll/jekyll-import.git"
 end
 
