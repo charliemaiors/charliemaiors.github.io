@@ -13,6 +13,7 @@ _commit_as_github_action(){
   git add .
   if ! (git diff --staged --quiet --exit-code); then
       git config --global user.name "GitHub Actions"
+      git config --global user.email "github@githubactions.com"
       git commit -m 'Import blogs from medium'
   fi
 }
