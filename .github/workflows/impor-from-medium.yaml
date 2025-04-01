@@ -24,6 +24,8 @@ jobs:
 
       - name: Commit and push imported blogs
         run: |
+          git branch
+          git remote -v
           git add _posts
           ./run.sh commit-as-github-action
           git push origin main
