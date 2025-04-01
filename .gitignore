@@ -1,3 +1,20 @@
 _site
 .sass-cache
 .jekyll-metadata
+.*
+!.git*
+!.nojekyll
+!.travis.yml
+!.husky
+!.commitlintrc.json
+!.versionrc.json
+!.stylelintrc.json
+!.talismanrc
+vendor
+
+# rubygem
+*.gem
+
+# npm dependencies
+node_modules
+package-lock.json
