@@ -32,7 +32,7 @@ disqus:
 
 # Build settings
 markdown: kramdown
-theme: jekyll-theme-chirpy
+theme: minima
 plugins:
   - jekyll-feed
 
