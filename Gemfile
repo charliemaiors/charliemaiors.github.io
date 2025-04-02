@@ -21,8 +21,11 @@ gem "jekyll", "~> 3.9"
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.6"
   gem "rss", "~> 0.3.1"
+  gem "github-pages"
   gem "jekyll-import", git: "https://github.com/jekyll/jekyll-import.git"
 end
+
+gem "minima"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
